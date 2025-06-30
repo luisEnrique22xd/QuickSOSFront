@@ -1,7 +1,7 @@
 import Alertas from './components/Alertas/AlertasActivas';
 import Estadisticas from './components/Estadisticas/Estadisticas';
 import Footer from './components/Footer';
-import Mapa from './components/Mapa/Mapa';
+import Mapa from "@/app/components/Mapa/Mapa";
 import Navbar from './components/Navbar';
 
 

@@ -1,9 +1,11 @@
 // app/mapa/page.tsx
 import React from 'react';
 import Navbar from '../Navbar';
-import Mapa from './Mapa';
+
+
 import Footer from '../Footer';
 import AlertasActivas from '../Alertas/AlertasActivas';
+import Mapa from './Mapa';
 
 
 // Componente para la sección de Filtros de Alertas (sidebar izquierdo)
@@ -48,7 +50,7 @@ const MapaPage = () => {
 
           <div className="lg:col-span-2 flex flex-col"> 
             <div className="bg-white p-6 rounded-lg shadow-md flex flex-col max-h-full items-center justify-center">
-                <Mapa />
+                 <Mapa />
             </div>
           </div>
         </div>
