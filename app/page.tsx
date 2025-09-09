@@ -17,7 +17,7 @@ export default function Home() {
           </div>
           <div className="lg:col-span-2">
                 <div className="bg-white p-6 rounded-lg shadow-md flex flex-col h-full">
-                  <Mapa />
+                  <Mapa/>
                 </div>
           </div>
         </div>

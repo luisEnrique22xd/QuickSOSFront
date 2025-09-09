@@ -15,7 +15,9 @@ L.Icon.Default.mergeOptions({
 });
 
 export default function MapaInterno() {
-  const center = [19.4326, -99.1332]; // CDMX
+  const center = [19.02963, -98.22987]; // CDMX
+  const position = [19.395779, -98.007649]; // Posición del marcador
+  const position2 = [19.454562, -97.765431]; // Posición del segundo marcador (opcional)
 
   return (
     <MapContainer center={center} zoom={13} style={{ height: "500px", width: "100%" }}>
@@ -25,6 +27,12 @@ export default function MapaInterno() {
       />
       <Marker position={center}>
         <Popup>¡Aquí hubo una emergencia!</Popup>
+      </Marker>
+      <Marker position={position}>
+        <Popup>¡Aquí hubo un incendio!</Popup>
+      </Marker>
+      <Marker position={position2}>
+        <Popup>¡Aquí hubo un incendio!</Popup>
       </Marker>
     </MapContainer>
   );
