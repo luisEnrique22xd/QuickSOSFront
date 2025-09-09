@@ -27,7 +27,6 @@ const FiltrosDeAlertas = () => {
           Accidentes
         </label>
       </div>
-      {/* Puedes agregar más filtros aquí, como rango de fechas, severidad, etc. */}
     </div>
   );
 };
@@ -49,10 +48,12 @@ const MapaPage = () => {
           </div>
 
           <div className="lg:col-span-2 flex flex-col"> 
-            <div className="bg-white p-6 rounded-lg shadow-md flex flex-col max-h-full items-center justify-center">
-                 <MapaInterno/>
-            </div>
-          </div>
+  <div className="bg-white p-6 rounded-lg shadow-md flex flex-col">
+    <div className="w-full h-[500px] md:h-[600px]">
+      <MapaInterno/>
+    </div>
+  </div>
+</div>
         </div>
       </main>
 

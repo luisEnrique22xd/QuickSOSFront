@@ -1,6 +1,5 @@
 import Navbar from '../Navbar'; 
 import Footer from '../Footer';
-import Mapa from '../Mapa/Mapa';
 
 
 

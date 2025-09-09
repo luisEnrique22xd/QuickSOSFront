@@ -16,8 +16,10 @@ export default function Home() {
             <Estadisticas />
           </div>
           <div className="lg:col-span-2">
-                <div className="bg-white p-6 rounded-lg shadow-md flex flex-col h-full">
-                  <Mapa/>
+                <div className="bg-white p-6 rounded-lg shadow-md flex flex-col">
+                  <div className="w-full h-full"> 
+                    <Mapa />
+                  </div>
                 </div>
           </div>
         </div>
