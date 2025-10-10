@@ -19,16 +19,40 @@ const alertas: Alerta[] = [
 const Alertas = () => {
   const [filtro, setFiltro] = useState<"Todos" | "Incendio" | "Robo" | "Accidente">("Todos");
   const [alertaSeleccionada, setAlertaSeleccionada] = useState<Alerta | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const alertasFiltradas =
     filtro === "Todos" ? alertas : alertas.filter((alerta) => alerta.tipo === filtro);
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4 text-black">Alertas Activas</h2>
+    <div className="bg-white p-6 rounded-lg shadow-md relative">
+      {/* Encabezado con menú hamburguesa */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold text-black">Alertas Activas</h2>
 
-      {/* botones del filtro */}
-      <div className="flex space-x-4 mb-4">
+        {/* Botón menú visible solo en móviles */}
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="md:hidden text-gray-700 focus:outline-none"
+        >
+          {menuOpen ? (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Botones del filtro (siempre visibles en escritorio, colapsables en móvil) */}
+<div
+  className={`flex flex-wrap justify-center md:justify-start gap-2 mb-4 transition-all ${
+    menuOpen ? "flex" : "hidden md:flex"
+  }`}
+>
         <button
           onClick={() => setFiltro("Todos")}
           className={`px-4 py-2 rounded-full text-sm cursor-pointer ${
@@ -66,7 +90,7 @@ const Alertas = () => {
         </button>
       </div>
 
-      {/* lista de las alertas filtradas */}
+      {/* Lista de alertas */}
       <div>
         {alertasFiltradas.length > 0 ? (
           alertasFiltradas.map((alerta) => (
