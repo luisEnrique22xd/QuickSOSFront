@@ -1,35 +1,98 @@
 "use client";
-import { useState } from "react";
-import DetallesCard from "./detallesCard";
 
+import { useEffect, useState } from "react"; // Necesitas useEffect para el fetch
+import DetallesCard from "./detallesCard"; // Asumiendo que este componente existe
+
+// 1. Interfaz ajustada para coincidir con el backend de Django/Firestore
 interface Alerta {
   id: string;
-  tipo: "Incendio" | "Robo" | "Accidente";
-  ubicacion: string;
-  severidad: "Alta" | "Media" | "Baja";
-  hora: string;
+  title: string;
+  description: string;
+  alertType: "Incendio" | "Robo" | "Accidente" | string; // Permitir 'string' para otros tipos
+  status: "En Proceso" | "Resuelto" | string;
+  latitude: number;
+  longitude: number;
+  createdAt: { _seconds: number };
+  imageurl?: string;
 }
 
-const alertas: Alerta[] = [
-  { id: "1", tipo: "Incendio", ubicacion: "Av. Principal 123", severidad: "Alta", hora: "10:30" },
-  { id: "2", tipo: "Robo", ubicacion: "Plaza Central", severidad: "Media", hora: "11:15" },
-  { id: "3", tipo: "Accidente", ubicacion: "Calle 45 Norte", severidad: "Alta", hora: "09:45" },
-];
-
 const Alertas = () => {
+  // 2. Estados para la lógica del componente
+  const [alerts, setAlerts] = useState<Alerta[]>([]); // Estado que guarda las alertas del backend
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filtro, setFiltro] = useState<"Todos" | "Incendio" | "Robo" | "Accidente">("Todos");
   const [alertaSeleccionada, setAlertaSeleccionada] = useState<Alerta | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const alertasFiltradas =
-    filtro === "Todos" ? alertas : alertas.filter((alerta) => alerta.tipo === filtro);
+  // 3. Hook para hacer el FETCH a tu API de Django
+  useEffect(() => {
+    // Asegúrate de que Django esté corriendo en 8000
+    fetch('http://127.0.0.1:8000/api/alerts/')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`La conexión falló. Código: ${response.status}. ¿CORS o servidor caído?`);
+        }
+        return response.json();
+      })
+      .then((data: Alerta[]) => {
+        setAlerts(data); // Almacenar los datos reales
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error al obtener datos:", err);
+        setError("Fallo al cargar las alertas del servidor.");
+        setLoading(false);
+      });
+  }, []); // Se ejecuta solo al montar el componente
 
+  // 4. Lógica de Filtrado usando los datos reales (alerts)
+  const alertasFiltradas =
+    filtro === "Todos" 
+      ? alerts 
+      : alerts.filter((alerta) => alerta.alertType === filtro);
+  
+  // 5. Función para obtener el color y emoji basado en el tipo
+  const getAlertTypeProps = (type: string) => {
+    switch (type) {
+      case "Incendio":
+        return { color: "text-red-500", emoji: "🔥" };
+      case "Robo":
+        return { color: "text-blue-500", emoji: "🚨" };
+      case "Accidente":
+        return { color: "text-yellow-500", emoji: "⚠️" };
+      default:
+        return { color: "text-gray-500", emoji: "📌" };
+    }
+  };
+
+  // 6. Manejo de estados de carga y error
+  if (loading) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-md flex justify-center items-center h-40">
+        <p className="text-gray-600">Cargando alertas...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
+        <h2 className="text-xl font-semibold text-red-700">Error de Conexión</h2>
+        <p className="text-sm text-gray-600">No se pudieron cargar las alertas. {error}</p>
+        <p className="text-xs mt-2 text-gray-500">Verifica que tu servidor de Django esté activo y que la configuración CORS permita el acceso desde localhost:3000.</p>
+      </div>
+    );
+  }
+
+  // 7. Renderizado del componente (usando los datos reales)
   return (
     <div className="bg-white p-6 rounded-lg shadow-md relative">
+      
       {/* Encabezado con menú hamburguesa */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-black">Alertas Activas</h2>
-
+        
         {/* Botón menú visible solo en móviles */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
@@ -47,12 +110,12 @@ const Alertas = () => {
         </button>
       </div>
 
-      {/* Botones del filtro (siempre visibles en escritorio, colapsables en móvil) */}
-<div
-  className={`flex flex-wrap justify-center md:justify-start gap-2 mb-4 transition-all ${
-    menuOpen ? "flex" : "hidden md:flex"
-  }`}
->
+      {/* Botones del filtro */}
+      <div
+        className={`flex flex-wrap justify-center md:justify-start gap-2 mb-4 transition-all ${
+          menuOpen ? "flex" : "hidden md:flex"
+        }`}
+      >
         <button
           onClick={() => setFiltro("Todos")}
           className={`px-4 py-2 rounded-full text-sm cursor-pointer ${
@@ -62,6 +125,7 @@ const Alertas = () => {
           Todos
         </button>
 
+        {/* Los botones usan alertType === filtro */}
         <button
           onClick={() => setFiltro("Incendio")}
           className={`px-4 py-2 rounded-full text-sm cursor-pointer ${
@@ -90,45 +154,46 @@ const Alertas = () => {
         </button>
       </div>
 
-      {/* Lista de alertas */}
-      <div>
+      {/* Lista de alertas dinámica */}
+      <div className="max-h-[50vh] overflow-y-auto">
         {alertasFiltradas.length > 0 ? (
-          alertasFiltradas.map((alerta) => (
-            <div key={alerta.id} className="border-b border-gray-300 py-3 last:border-b-0">
-              <div className="flex justify-between items-center">
-                <h3 className="font-medium text-gray-800 flex items-center">
-                  {alerta.tipo === "Incendio" && <span className="text-red-500 mr-2">🔥</span>}
-                  {alerta.tipo === "Robo" && <span className="text-blue-500 mr-2">🚨</span>}
-                  {alerta.tipo === "Accidente" && <span className="text-yellow-500 mr-2">⚠️</span>}
-                  {alerta.tipo}
-                </h3>
-                <span className="text-gray-500 text-sm">{alerta.hora}</span>
-              </div>
-              <p className="text-gray-600 text-sm">{alerta.ubicacion}</p>
-              <p className="text-gray-500 text-xs">
-                Severidad:{" "}
-                <span
-                  className={`${
-                    alerta.severidad === "Alta" ? "text-red-600 font-semibold" : ""
-                  }`}
+          alertasFiltradas.map((alerta) => {
+            const { color, emoji } = getAlertTypeProps(alerta.alertType);
+            const statusColor = alerta.status === "Resuelto" ? "text-green-500" : "text-orange-500";
+            const time = alerta.createdAt ? new Date(alerta.createdAt._seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "N/D";
+            
+            return (
+              <div key={alerta.id} className="border-b border-gray-300 py-3 last:border-b-0">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-medium text-gray-800 flex items-center">
+                    <span className={`${color} mr-2`}>{emoji}</span>
+                    {alerta.alertType}
+                  </h3>
+                  <span className="text-gray-500 text-sm">{time}</span>
+                </div>
+                <p className="text-gray-600 text-sm">{alerta.title}</p>
+                <p className="text-gray-500 text-xs">
+                  Estado:{" "}
+                  <span className={statusColor}>
+                    {alerta.status}
+                  </span>
+                </p>
+                <button
+                  onClick={() => setAlertaSeleccionada(alerta)}
+                  className="text-blue-500 text-sm mt-1 hover:underline"
                 >
-                  {alerta.severidad}
-                </span>
-              </p>
-              <button
-                onClick={() => setAlertaSeleccionada(alerta)}
-                className="text-blue-500 text-sm mt-1 hover:underline"
-              >
-                Ver Detalles
-              </button>
-            </div>
-          ))
+                  Ver Detalles
+                </button>
+              </div>
+            );
+          })
         ) : (
-          <p className="text-gray-500 text-sm">No hay alertas en esta categoría.</p>
+          <p className="text-gray-500 text-sm">No hay alertas activas en esta categoría.</p>
         )}
       </div>
 
       {/* Modal de detalles */}
+      {/* Pasamos la alerta completa, incluyendo la URL de la imagen y coordenadas */}
       <DetallesCard alerta={alertaSeleccionada} onClose={() => setAlertaSeleccionada(null)} />
     </div>
   );

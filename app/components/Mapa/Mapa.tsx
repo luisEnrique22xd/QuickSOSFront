@@ -1,8 +1,8 @@
+// app/components/Mapa/Mapa.tsx
 "use client";
 
 import dynamic from "next/dynamic";
 
-// Importación dinámica del componente que contiene el mapa real
 const MapaInterno = dynamic(() => import("./MapaInterno"), {
   ssr: false,
 });
@@ -16,18 +16,31 @@ const MapaDeAlertas = () => {
         <MapaInterno />
       </div>
 
+      {/* LEYENDA ACTUALIZADA */}
       <div className="mt-4 flex space-x-4 text-sm">
+
+        {/* Incendios (ROJO - #EF4444) */}
         <div className="flex items-center">
           <span className="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
           <span className="text-gray-800">Incendios</span>
         </div>
+
+        {/* Robos (AZUL - #3B82F6) */}
         <div className="flex items-center">
           <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
           <span className="text-gray-800">Robos</span>
         </div>
+
+        {/* Accidentes (NARANJA/AMARILLO - #F59E0B) */}
         <div className="flex items-center">
           <span className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
           <span className="text-gray-800">Accidentes</span>
+        </div>
+
+        {/* Otros (GRIS - #6B7280) */}
+        <div className="flex items-center">
+          <span className="w-3 h-3 bg-gray-500 rounded-full mr-2"></span>
+          <span className="text-gray-800">Otros</span>
         </div>
       </div>
     </>
