@@ -6,6 +6,7 @@ const withPwaConfigured = withPWA({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development", // No PWA en dev
+  customWorkerDir: 'service-worker',
 });
 
 export default withPwaConfigured({
