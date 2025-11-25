@@ -1,23 +1,13 @@
-import type { NextConfig } from "next";
+// @ts-nocheck   // ← NECESARIO porque next-pwa no tiene tipos actualizados
 import withPWA from "next-pwa";
-import path from "path";
 
-const isProd = process.env.NODE_ENV === "production";
-
-const nextConfig: NextConfig = withPWA({
-  dest: "public",              
-  disable: !isProd,            
-  register: true,              
-  skipWaiting: true,           
-  buildExcludes: [/middleware-manifest\.json$/], 
-})({
-  reactStrictMode: true,
-  experimental: {
-    
-  },
-  images: {
-    domains: [],               
-  },
+const withPwaConfigured = withPWA({
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === "development", // No PWA en dev
 });
 
-export default nextConfig;
+export default withPwaConfigured({
+  reactStrictMode: true,
+});
