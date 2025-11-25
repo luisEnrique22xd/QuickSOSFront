@@ -1,14 +1,20 @@
 // app/mapa/page.tsx
+'use client';
+
+//export const revalidate = 0;       // Desactiva el prerender
+export const dynamicParams = true; // Permite parámetros dinámicos
+
 import React from 'react';
 import Navbar from '../Navbar';
 import Footer from '../Footer';
 import AlertasActivas from '../Alertas/AlertasActivas';
-import Mapa from "@/app/components/Mapa/Mapa";
-import MapaInterno from './MapaInterno';
+import dynamic from "next/dynamic";
 
+const MapaInterno = dynamic(() => import("@/app/components/Mapa/MapaInterno"), {
+  ssr: false, // Evita SSR en el mapa
+});
 
-
-// Componente para la sección de Filtros de Alertas (sidebar izquierdo)
+// Filtros de alertas
 const FiltrosDeAlertas = () => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md flex flex-col">
@@ -31,16 +37,12 @@ const FiltrosDeAlertas = () => {
   );
 };
 
-
-
-
 const MapaPage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Navbar />
       
       <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8">
-        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6"> 
           <div className="lg:col-span-1 flex flex-col gap-6">
             <FiltrosDeAlertas />
@@ -48,12 +50,12 @@ const MapaPage = () => {
           </div>
 
           <div className="lg:col-span-2 flex flex-col"> 
-  <div className="bg-white p-6 rounded-lg shadow-md flex flex-col">
-    <div className="w-full h-[500px] md:h-[600px]">
-      <MapaInterno/>
-    </div>
-  </div>
-</div>
+            <div className="bg-white p-6 rounded-lg shadow-md flex flex-col">
+              <div className="w-full h-[500px] md:h-[600px]">
+                <MapaInterno />
+              </div>
+            </div>
+          </div>
         </div>
       </main>
 
