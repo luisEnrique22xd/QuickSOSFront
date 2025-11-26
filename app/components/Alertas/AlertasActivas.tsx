@@ -28,7 +28,7 @@ const Alertas = () => {
   // 3. Hook para hacer el FETCH a tu API de Django
   useEffect(() => {
     // Asegúrate de que Django esté corriendo en 8000
-    fetch('http://127.0.0.1:8000/api/alerts/')
+    fetch('https://quicksosbackend-production.up.railway.app/api/alerts/')
       .then(response => {
         if (!response.ok) {
           throw new Error(`La conexión falló. Código: ${response.status}. ¿CORS o servidor caído?`);
