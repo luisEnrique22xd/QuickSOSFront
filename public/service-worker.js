@@ -19,7 +19,7 @@ self.addEventListener("fetch", event => {
           })
               .catch(() => {
               if (event.request.mode === "navigate") {
-                return caches.match("/offline");
+                return caches.match("/offline.tsx");
               }
             })
         );
