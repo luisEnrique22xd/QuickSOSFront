@@ -17,9 +17,9 @@ self.addEventListener("fetch", event => {
             cache.put(event.request, networkResponse.clone());
             return networkResponse;
           })
-              .catch(() => {
+          .catch(() => {
               if (event.request.mode === "navigate") {
-                return caches.match("/offline.json");
+                return cache.add("/offline.json");
               }
             })
         );
