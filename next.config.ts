@@ -10,6 +10,19 @@ const withPwaConfigured = withPWA({
 
   runtimeCaching: [
     ...runtimeCaching,
+    {
+    urlPattern: /^\/$/i,
+    handler: "NetworkFirst",
+    options: {
+      cacheName: "home-page-cache",
+      networkTimeoutSeconds: 5,
+      expiration: {
+        maxEntries: 1,
+        maxAgeSeconds: 60 * 60 * 24 * 7,
+      },
+      cacheableResponse: { statuses: [0, 200] },
+    },
+  },
 
     {
       urlPattern: ({ request, url }) =>
