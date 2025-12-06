@@ -1,5 +1,13 @@
+// service-worker.js
 self.addEventListener("install", event => {
   console.log("Service Worker installed");
+  event.waitUntil(
+    // 🌟 Consolidamos la lógica de caché aquí para asegurar que offline.html esté disponible 🌟
+    caches.open("offline-cache").then((cache) => {
+      // Asegúrate de que /offline.html existe en tu carpeta /public
+      return cache.addAll(["/offline.html"]); 
+    })
+  );
   self.skipWaiting();
 });
 
@@ -7,23 +15,3 @@ self.addEventListener("activate", event => {
   console.log("Service Worker activated");
 });
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    // Solo cacheamos el fallback en la instalación
-    caches.open("offline-cache").then((cache) => {
-      return cache.addAll(["/offline.html"]);
-    })
-  );
-});
-
-/*
-self.addEventListener("fetch", (event) => {
-  if (event.request.mode === "navigate") {
-    event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match("/offline.html");
-      })
-    );
-  }
-});
-*/
