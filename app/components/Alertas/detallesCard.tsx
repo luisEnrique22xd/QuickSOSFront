@@ -9,11 +9,11 @@ interface Alerta {
   description: string;
   alertType: "Incendio" | "Robo" | "Accidente" | string;
   status: "En Proceso" | "Resuelto" | string;
-  imageurl?: string;
+  imageUrl?: string;
   latitude: number;
   longitude: number;
   // 🚨 Usamos el nuevo campo numérico del backend
-  createdAtSeconds: number | null | undefined; 
+  createdAtSeconds: number | null | undefined;
 }
 
 interface Props {
@@ -23,21 +23,21 @@ interface Props {
 
 
 const DetallesCard: React.FC<Props> = ({ alerta, onClose }) => {
-  
+
   // 🟢 2. HOOKS MOVIDOS AL PRINCIPIO (Solución a error de Hooks)
-  const [direccion, setDireccion] = useState("Cargando ubicación..."); 
-  
+  const [direccion, setDireccion] = useState("Cargando ubicación...");
+
   // Lógica de Geocodificación Inversa
   useEffect(() => {
     if (!alerta || !alerta.latitude || !alerta.longitude) {
-        return; 
+      return;
     }
-    
+
     setDireccion("Buscando dirección legible...");
-    
+
     // API de Geocodificación Inversa (Nominatim)
     const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${alerta.latitude}&lon=${alerta.longitude}`;
-    
+
     fetch(url)
       .then(res => res.json())
       .then(data => {
@@ -51,7 +51,7 @@ const DetallesCard: React.FC<Props> = ({ alerta, onClose }) => {
         console.error("Error al obtener geocodificación:", err);
         setDireccion("Error al cargar dirección.");
       });
-  }, [alerta]); 
+  }, [alerta]);
 
 
   // 3. SALIDA ANTICIPADA MOVIDA DESPUÉS DE LOS HOOKS
@@ -61,15 +61,15 @@ const DetallesCard: React.FC<Props> = ({ alerta, onClose }) => {
   // 4. Cálculo de Fecha y Hora (CORREGIDO)
   let hora = "N/D";
   let fecha = "N/D";
-  
+
   // 🚨 Usamos el nuevo campo numérico para el cálculo
   if (alerta.createdAtSeconds) {
-      // Convertir segundos a milisegundos
-      const timestampMs = alerta.createdAtSeconds * 1000;
-      const date = new Date(timestampMs);
-      
-      hora = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-      fecha = date.toLocaleDateString();
+    // Convertir segundos a milisegundos
+    const timestampMs = alerta.createdAtSeconds * 1000;
+    const date = new Date(timestampMs);
+
+    hora = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+    fecha = date.toLocaleDateString();
   }
 
   // Clase para colorear el estado
@@ -105,7 +105,7 @@ const DetallesCard: React.FC<Props> = ({ alerta, onClose }) => {
 
         <div className="space-y-3 text-sm">
           <p className="text-gray-700">🚨 Tipo de Alerta: <span className="font-semibold">{alerta.alertType}</span></p>
-          
+
           {/* 📍 Ubicación Legible */}
           <p className="text-gray-700">📍 Ubicación: <span className="font-semibold">{direccion}</span></p>
 
@@ -115,7 +115,7 @@ const DetallesCard: React.FC<Props> = ({ alerta, onClose }) => {
           {/* 📅 Fecha y Hora Corregidas */}
           <p className="text-gray-700">📅 Fecha: <span className="font-semibold">{fecha}</span></p>
           <p className="text-gray-700">⏰ Hora: <span className="font-semibold">{hora}</span></p>
-          
+
           <p className="text-gray-700 mt-4">
             ⚡ Estado Actual:{" "}
             <span className={getStatusClass(alerta.status)}>
@@ -129,25 +129,25 @@ const DetallesCard: React.FC<Props> = ({ alerta, onClose }) => {
           </div>
         </div>
 
-        {/* Imagen de Evidencia (si existe) */}
-        {alerta.imageurl && (
-          <div className="mt-4 border-t pt-4">
-            <h3 className="font-semibold mb-2 text-gray-800">Evidencia Fotográfica:</h3>
-            <img 
-              src={alerta.imageurl} 
-              alt={`Evidencia de ${alerta.alertType}`} 
-              className="w-full h-auto rounded-lg shadow-md max-h-60 object-cover"
+        {/* 🖼️ LÓGICA DE LA IMAGEN */}
+        {alerta.imageUrl && ( // Solo si imagenUrl NO es null o vacío
+          <div className="mt-4 border p-2 rounded-md bg-gray-50">
+            <p className="text-gray-800 font-semibold mb-2">Evidencia:</p>
+            <img
+              src={alerta.imageUrl} // Usa la URL de Supabase directamente
+              alt={`Evidencia de ${alerta.title}`}
+              className="w-full h-auto rounded-md object-cover max-h-55"
             />
           </div>
         )}
 
         <button
-            onClick={onClose}
-            className="mt-6 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150"
+          onClick={onClose}
+          className="mt-6 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150"
         >
-            Cerrar
+          Cerrar
         </button>
-        
+
       </motion.div>
     </div>
   );
