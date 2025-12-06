@@ -1,4 +1,4 @@
-// @ts-nocheck  // necesario por next-pwa + TS
+// @ts-nocheck
 import withPWA from "next-pwa";
 import runtimeCaching from "next-pwa/cache.js";
 
@@ -11,7 +11,6 @@ const withPwaConfigured = withPWA({
   runtimeCaching: [
     ...runtimeCaching,
 
-    // --- Navegación / Páginas ---
     {
       urlPattern: ({ request, url }) =>
         request.mode === "navigate" && !url.pathname.startsWith("/api"),
@@ -27,7 +26,6 @@ const withPwaConfigured = withPWA({
       },
     },
 
-    // --- API Railway ---
     {
       urlPattern: /^https:\/\/quicksosbackend-production\.up\.railway\.app\/api\/.*$/i,
       handler: "NetworkFirst",
@@ -42,7 +40,6 @@ const withPwaConfigured = withPWA({
       },
     },
 
-    // --- Imágenes ---
     {
       urlPattern: ({ request }) => request.destination === "image",
       handler: "CacheFirst",
@@ -56,35 +53,19 @@ const withPwaConfigured = withPWA({
       },
     },
 
-    // --- Scripts, CSS, Fuentes ---
     {
       urlPattern: ({ request }) =>
         ["script", "style", "font"].includes(request.destination),
       handler: "StaleWhileRevalidate",
       options: {
         cacheName: "static-cache",
+        // ❌ NO networkTimeoutSeconds here
         cacheableResponse: { statuses: [0, 200] },
       },
     },
-    {
-  urlPattern: ({ request }) => request.mode === "navigate",
-  handler: "NetworkOnly",
-  options: {
-    cacheName: "html-pages-cache",
-    networkTimeoutSeconds: 4,
-    plugins: [
-      {
-        handlerDidError: async () => {
-          return caches.match("/offline.html");
-        },
-      },
-    ],
-  },
-}
   ],
 
-  // customWorkerDir: "sw.js",
-  customWorkerDir: undefined,
+  customWorkerDir: "sw.js",
 });
 
 export default withPwaConfigured({
