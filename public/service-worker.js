@@ -9,13 +9,14 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
+    // Solo cacheamos el fallback en la instalación
     caches.open("offline-cache").then((cache) => {
       return cache.addAll(["/offline.html"]);
     })
   );
 });
 
-
+/*
 self.addEventListener("fetch", (event) => {
   if (event.request.mode === "navigate") {
     event.respondWith(
@@ -25,3 +26,4 @@ self.addEventListener("fetch", (event) => {
     );
   }
 });
+*/
