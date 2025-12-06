@@ -81,7 +81,7 @@ const withPwaConfigured = withPWA({
   ],
 
   // SERVICE WORKER CUSTOM
-  customWorkerDir: "sw",
+  customWorkerDir: "service-worker",
 });
 
 
