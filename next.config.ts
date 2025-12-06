@@ -71,8 +71,11 @@ const withPwaConfigured = withPWA({
 export default withPwaConfigured({
   reactStrictMode: true,
 
+  // 👉 OBLIGATORIO para next-pwa en Next 16
   experimental: {
-    workerThreads: false,
-    cpus: 1,
+    turbo: false,
   },
+
+  // Requerido por next-pwa
+  webpack: (config) => config,
 });

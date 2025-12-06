@@ -7,23 +7,21 @@ self.addEventListener("activate", event => {
   console.log("Service Worker activated");
 });
 
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.open("quicksos-cache").then(cache =>
-      cache.match(event.request).then(response => {
-        return (
-          response ||
-          fetch(event.request).then(networkResponse => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          })
-          .catch(() => {
-              if (event.request.mode === "navigate") {
-                return cache.add("/offline.json");
-              }
-            })
-        );
-      })
-    )
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open("offline-cache").then((cache) => {
+      return cache.addAll(["/offline.html"]);
+    })
   );
+});
+
+
+self.addEventListener("fetch", (event) => {
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match("/offline.html");
+      })
+    );
+  }
 });
