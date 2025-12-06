@@ -84,6 +84,9 @@ const withPwaConfigured = withPWA({
   customWorkerDir: "sw",
 });
 
+
+
+
 export default withPwaConfigured({
   reactStrictMode: true,
 
@@ -91,4 +94,10 @@ export default withPwaConfigured({
     workerThreads: false,
     cpus: 1,
   },
+   experimental: {
+    turbo: false,
+  },
+
+  // Requerido por next-pwa
+  webpack: (config) => config,
 });
