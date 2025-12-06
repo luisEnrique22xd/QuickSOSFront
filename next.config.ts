@@ -14,7 +14,7 @@ const withPwaConfigured = withPWA({
 
     // ⚡ Cachear explícitamente la página principal
     {
-      urlPattern: /^\/$/,
+      urlPattern: ({ url }) => url.pathname === "/",
       handler: "NetworkFirst",
       options: {
         cacheName: "home-cache",
