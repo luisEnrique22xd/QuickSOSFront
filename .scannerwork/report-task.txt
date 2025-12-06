@@ -1,0 +1,6 @@
+projectKey=quicksos
+serverUrl=http://localhost:9000
+serverVersion=25.10.0.114319
+dashboardUrl=http://localhost:9000/dashboard?id=quicksos
+ceTaskId=04cec63b-acb8-4363-8727-b08e89daaf70
+ceTaskUrl=http://localhost:9000/api/ce/task?id=04cec63b-acb8-4363-8727-b08e89daaf70

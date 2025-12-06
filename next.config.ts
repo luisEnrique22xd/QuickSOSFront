@@ -66,9 +66,25 @@ const withPwaConfigured = withPWA({
         cacheableResponse: { statuses: [0, 200] },
       },
     },
+    {
+  urlPattern: ({ request }) => request.mode === "navigate",
+  handler: "NetworkOnly",
+  options: {
+    cacheName: "html-pages-cache",
+    networkTimeoutSeconds: 4,
+    plugins: [
+      {
+        handlerDidError: async () => {
+          return caches.match("/offline.html");
+        },
+      },
+    ],
+  },
+}
   ],
 
-  customWorkerDir: "sw.js",
+  // customWorkerDir: "sw.js",
+  customWorkerDir: undefined,
 });
 
 export default withPwaConfigured({
