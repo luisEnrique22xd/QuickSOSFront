@@ -1,3 +1,4 @@
+//aun no se si dejar esto 
 importScripts('/sw.js');
 
 self.addEventListener("install", event => {
