@@ -1,27 +1,33 @@
-// app/components/Mapa/Mapainterno.js
 "use client";
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-markercluster'; // 🚨 Nuevo Import
+import MarkerClusterGroup from 'react-leaflet-markercluster';
 
-// --- 1. Definición de los Íconos Personalizados (SVG) ---
+// --- 1. Definición de los Íconos Personalizados (SVG - PIN DINÁMICO) ---
 
 const createCustomIcon = (colorHex) => {
-  // Ícono SVG circular con signo de exclamación
+  // 🟢 Ícono SVG de Pin de Ubicación. El color se inyecta dinámicamente.
   const svgIcon = `
-      <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="45" fill="${colorHex}" stroke="#fff" stroke-width="5"/>
-        <text x="50" y="50" font-size="60" text-anchor="middle" dominant-baseline="central" fill="#fff">!</text>
-      </svg>`;
+    <svg width="40" height="40" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      
+      <path 
+        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"
+        fill="${colorHex}" 
+        stroke="#fff" 
+        stroke-width="0.5" 
+      />
+      <circle cx="12" cy="9" r="2.5" fill="#FFFFFF"/>
+    </svg>
+  `;
 
   return L.divIcon({
-    className: 'custom-marker', // Puedes usar esta clase para CSS adicional
+    className: 'custom-marker',
     html: svgIcon,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32]
+    iconSize: [40, 40],
+    iconAnchor: [12, 40],
+    popupAnchor: [0, -38]
   });
 };
 
@@ -63,8 +69,7 @@ export default function MapaInterno() {
         return response.json();
       })
       .then(data => {
-        // 🚨 AJUSTAR SEGÚN EL FORMATO DE RESPUESTA DE DJANGO:
-        // Si tu JSON es { "alerts": [...] }, usa data.alerts. Si es un array directo, usa data.
+        // AJUSTAR SEGÚN EL FORMATO DE RESPUESTA DE DJANGO
         setAlerts(data.alerts || data);
         setLoading(false);
       })
@@ -96,7 +101,6 @@ export default function MapaInterno() {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      {/* 🟢 Implementación del Clustering de Marcadores */}
       <MarkerClusterGroup>
         {alerts.map((alert) => {
           const icon = ICON_TYPES[alert.alertType] || ICON_TYPES['Otro'];
@@ -114,10 +118,21 @@ export default function MapaInterno() {
                   <br />
                   Tipo: {alert.alertType}
                   <br />
-                  {alert.description}
+                  Descripcion: {alert.description}
                   <br />
-                  {alert.imageurl && (
-                    <img src={alert.imageurl} alt="Evidencia" style={{ maxWidth: '100px' }} />
+                  { }
+                  {alert.imageUrl && (
+                    <img
+                      src={alert.imageUrl}
+                      alt="Evidencia"
+                      style={{
+                        maxWidth: '100%',     // 🟢 1. Usar 100% del contenedor del popup
+                        maxHeight: '150px',    // 🟢 2. Definir una altura máxima razonable
+                        width: '100%',         // 🟢 3. Ocupar todo el ancho (para centrar)
+                        objectFit: 'contain',  // 🟢 4. CLAVE: Mantiene la proporción y muestra toda la imagen.
+                        objectPosition: 'center' // 🟢 5. Centra la imagen dentro del espacio disponible.
+                      }}
+                    />
                   )}
                   <br />
                   Estado: <strong>{alert.status}</strong>
