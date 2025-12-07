@@ -9,12 +9,12 @@ interface Alerta {
   description: string;
   alertType: "Incendio" | "Robo" | "Accidente" | string;
   status: "En Proceso" | "Resuelto" | string;
+  imageUrl?: string;
   latitude: number;
   longitude: number;
-  createdAt: { _seconds: number };   // <— LA QUE VIENE DE TU BACK
-  imageurl?: string;
+  // 🚨 Usamos el nuevo campo numérico del backend
+  createdAtSeconds: number | null | undefined;
 }
-
 
 interface Props {
   alerta: Alerta | null;
@@ -63,13 +63,13 @@ const DetallesCard: React.FC<Props> = ({ alerta, onClose }) => {
   let fecha = "N/D";
 
   // 🚨 Usamos el nuevo campo numérico para el cálculo
-  if (alerta.createdAt?._seconds) {
-    const timestampMs = alerta.createdAt._seconds * 1000;
+  if (alerta.createdAtSeconds) {
+    // Convertir segundos a milisegundos
+    const timestampMs = alerta.createdAtSeconds * 1000;
+    const date = new Date(timestampMs);
 
-      const date = new Date(timestampMs);
-      
-      hora = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-      fecha = date.toLocaleDateString();
+    hora = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+    fecha = date.toLocaleDateString();
   }
 
   // Clase para colorear el estado
