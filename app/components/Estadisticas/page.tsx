@@ -88,7 +88,8 @@ const EstadisticasPage = () => {
 
     // useEffect para el Fetch
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/api/alerts/')
+        // Asegúrate de que Django esté corriendo en este puerto
+        fetch('https://quicksosbackend-production.up.railway.app/api/alerts/') 
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`La conexión al servidor de Django falló. Código: ${response.status}`);
