@@ -68,15 +68,21 @@ const withPwaConfigured = withPWA({
     },
   ],
 
-  // customWorkerDir: "service-worker",
-  customWorkerDir: "sw.js",
+  customWorkerDir: "service-worker",
+  // customWorkerDir: "sw.js",
 });
 
 export default withPwaConfigured({
   reactStrictMode: true,
 
   experimental: {
-    workerThreads: false,
-    cpus: 1,
+  turbo: {
+    // Desactivar turbopack completamente
+    resolveAlias: {},
+    loaders: {},
   },
+  // También evita que use Worker Threads
+  workerThreads: false,
+  cpus: 1,
+},
 });
