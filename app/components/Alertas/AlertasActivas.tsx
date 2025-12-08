@@ -31,7 +31,7 @@ const Alertas = () => {
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/alerts/');
+        const response = await fetch('https://quicksosbackend-production.up.railway.app/api/alerts/');
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
