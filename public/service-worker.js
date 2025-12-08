@@ -25,7 +25,7 @@ self.addEventListener("fetch", event => {
   // 1️⃣ Página de inicio → NetworkFirst + cache propio
   if (url.pathname === "/") {
     event.respondWith(
-      caches.open("home-cache").then(cache =>
+      caches.open("quicksos-cache").then(cache =>
         fetch(request)
           .then(res => {
             cache.put(request, res.clone());
