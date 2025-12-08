@@ -67,7 +67,6 @@ const withPwaConfigured = withPWA({
   customWorkerDir: "service-worker",
 });
 
-// 👇 ESTA ES LA CLAVE:
 // Desactivar Turbopack por completo
 export default withPwaConfigured({
   reactStrictMode: true,
