@@ -19,54 +19,85 @@ self.addEventListener("activate", event => {
 // FETCH PERSONALIZADO
 // ===========================
 self.addEventListener("fetch", event => {
-  const request = event.request;
-  const url = new URL(request.url);
+  const req = event.request;
+  const url = new URL(req.url);
 
-  // 1️⃣ Página de inicio → NetworkFirst + cache propio
+  // -----------------------------------------------------
+  // 1️⃣ CACHE PARA PETICIONES DE API / BACKEND
+  //    Stale-While-Revalidate (funciona sin internet)
+  // -----------------------------------------------------
+  if (url.pathname.startsWith("/api/")) {
+    event.respondWith(
+      caches.open("api-cache").then(async cache => {
+        const cachedResponse = await cache.match(req);
+
+        try {
+          const networkResponse = await fetch(req);
+          cache.put(req, networkResponse.clone());
+          return networkResponse;
+        } catch {
+          return cachedResponse || new Response(JSON.stringify({ error: "offline" }), {
+            headers: { "Content-Type": "application/json" }
+          });
+        }
+      })
+    );
+    return;
+  }
+
+  // -----------------------------------------------------
+  // 2️⃣ Página de inicio → Network First + cache
+  // -----------------------------------------------------
   if (url.pathname === "/") {
     event.respondWith(
-      caches.open("quicksos-cache").then(cache =>
-        fetch(request)
+      caches.open("home-cache").then(cache =>
+        fetch(req)
           .then(res => {
-            cache.put(request, res.clone());
+            cache.put(req, res.clone());
             return res;
           })
-          .catch(() => cache.match(request))
+          .catch(() => cache.match(req) || caches.match("/offline.html"))
       )
     );
     return;
   }
 
-  // 2️⃣ Página de alertas → igual que inicio
+  // -----------------------------------------------------
+  // 3️⃣ Página /alertas → igual que inicio
+  // -----------------------------------------------------
   if (url.pathname.startsWith("/alertas")) {
     event.respondWith(
       caches.open("alertas-cache").then(cache =>
-        fetch(request)
+        fetch(req)
           .then(res => {
-            cache.put(request, res.clone());
+            cache.put(req, res.clone());
             return res;
           })
-          .catch(() => cache.match(request))
+          .catch(() => cache.match(req) || caches.match("/offline.html"))
       )
     );
     return;
   }
 
-  // 3️⃣ Páginas que NO se cachean → mostrar offline.html si no hay internet
+  // -----------------------------------------------------
+  // 4️⃣ Páginas que NO se cachean → solo fallback offline
+  // -----------------------------------------------------
   if (
     url.pathname.startsWith("/mapa") ||
     url.pathname.startsWith("/estadisticas")
   ) {
     event.respondWith(
-      fetch(request).catch(() => caches.match("/offline.html"))
+      fetch(req).catch(() => caches.match("/offline.html"))
     );
     return;
   }
 
-  // 4️⃣ Para cualquier otra página navegable → fallback offline
-  if (request.mode === "navigate") {
+  // -----------------------------------------------------
+  // 5️⃣ Cualquier otra página navegable → offline.html
+  // -----------------------------------------------------
+  if (req.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(() => caches.match("/offline.html"))
+      fetch(req).catch(() => caches.match("/offline.html"))
     );
     return;
   }
