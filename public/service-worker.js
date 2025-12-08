@@ -17,57 +17,77 @@ self.addEventListener("activate", event => {
 });
 
 // FETCH PERSONALIZADO
-// self.addEventListener("fetch", (event) => {
-//   const request = event.request;
-//   const url = new URL(request.url);
-
-//   // =============================
-//   // 1️⃣ SOLO CACHEAR LA PÁGINA DE INICIO "/"
-//   // =============================
-//   if (url.pathname === "/") {
-//     event.respondWith(
-//       caches.open("home-cache").then((cache) =>
-//         fetch(request)
-//           .then((response) => {
-//             cache.put(request, response.clone()); // Guardar home en caché
-//             return response;
-//           })
-//           .catch(() => cache.match(request)) // Si no hay internet → usar caché
-//       )
-//     );
-//     return; // no continuar a otros handlers
-//   }
-
-//   // =============================
-//   // 2️⃣ OTRAS PÁGINAS → FALLBACK A offline.html SI NO HAY INTERNET
-//   // =============================
-//   if (request.mode === "navigate") {
-//     event.respondWith(
-//       fetch(request).catch(() => {
-//         return caches.match("/offline.html");
-//       })
-//     );
-//     return;
-//   }
-
-//   // =============================
-//   // 3️⃣ PARA ARCHIVOS ESTÁTICOS (JS, CSS, IMG, ETC)
-//   //     → dejar que next-pwa se encargue
-//   // =============================
-//   // No hacemos nada aquí, sw.js (next-pwa) se encarga automáticamente.
-// });
+// ===========================
 self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.open("quicksos-cache").then(cache =>
-      cache.match(event.request).then(response => {
-        return (
-          response ||
-          fetch(event.request).then(networkResponse => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
+  const request = event.request;
+  const url = new URL(request.url);
+
+  // 1️⃣ Página de inicio → NetworkFirst + cache propio
+  if (url.pathname === "/") {
+    event.respondWith(
+      caches.open("home-cache").then(cache =>
+        fetch(request)
+          .then(res => {
+            cache.put(request, res.clone());
+            return res;
           })
-        );
-      })
-    )
-  );
+          .catch(() => cache.match(request))
+      )
+    );
+    return;
+  }
+
+  // 2️⃣ Página de alertas → igual que inicio
+  if (url.pathname.startsWith("/alertas")) {
+    event.respondWith(
+      caches.open("alertas-cache").then(cache =>
+        fetch(request)
+          .then(res => {
+            cache.put(request, res.clone());
+            return res;
+          })
+          .catch(() => cache.match(request))
+      )
+    );
+    return;
+  }
+
+  // 3️⃣ Páginas que NO se cachean → mostrar offline.html si no hay internet
+  if (
+    url.pathname.startsWith("/mapa") ||
+    url.pathname.startsWith("/estadisticas")
+  ) {
+    event.respondWith(
+      fetch(request).catch(() => caches.match("/offline.html"))
+    );
+    return;
+  }
+
+  // 4️⃣ Para cualquier otra página navegable → fallback offline
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request).catch(() => caches.match("/offline.html"))
+    );
+    return;
+  }
+
+  // 5️⃣ Todo lo demás (assets, imágenes, js, css) → manejarlo next-pwa
+  // NO HACEMOS NADA AQUÍ
 });
+
+
+// self.addEventListener("fetch", event => {
+//   event.respondWith(
+//     caches.open("quicksos-cache").then(cache =>
+//       cache.match(event.request).then(response => {
+//         return (
+//           response ||
+//           fetch(event.request).then(networkResponse => {
+//             cache.put(event.request, networkResponse.clone());
+//             return networkResponse;
+//           })
+//         );
+//       })
+//     )
+//   );
+// });
