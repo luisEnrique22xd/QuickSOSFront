@@ -8,53 +8,64 @@ const withPwaConfigured = withPWA({
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
 
-  // CACHE PRINCIPAL + SW PERSONALIZADO
   runtimeCaching: [
     ...runtimeCaching,
 
-    // ⚡ Cachear explícitamente la página principal
+    // ============================
+    // 1) RUTAS QUE SE CACHEAN Y FUNCIONAN SIN INTERNET
+    // ============================
+
+    // Home cacheada
     {
-      urlPattern: ({ url }) => url.pathname === "/",
+      urlPattern: /^\/$/,
       handler: "NetworkFirst",
       options: {
         cacheName: "home-cache",
-        networkTimeoutSeconds: 6,
+        networkTimeoutSeconds: 5,
         cacheableResponse: { statuses: [0, 200] },
       },
     },
 
-    // Navegación general (excepto API)
+    // /components/Estadisticas cacheada
     {
-      urlPattern: ({ request, url }) =>
-        request.mode === "navigate" && !url.pathname.startsWith("/api"),
+      urlPattern: /^\/components\/Estadisticas$/i,
       handler: "NetworkFirst",
       options: {
-        cacheName: "pages-cache",
-        networkTimeoutSeconds: 8,
+        cacheName: "estadisticas-cache",
+        networkTimeoutSeconds: 5,
         cacheableResponse: { statuses: [0, 200] },
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 60 * 60 * 24 * 7,
+      },
+    },
+
+    // ============================
+    // 2) RUTAS QUE DEBEN MOSTRAR offline.html SI NO HAY INTERNET
+    // ============================
+
+    {
+      urlPattern: /^\/components\/Alertas$/i,
+      handler: "NetworkOnly", // 🔥 No cachea, si falla → offline.html
+      options: {
+        cacheName: "alertas-no-cache",
+        fallback: {
+          document: "/offline.html",
         },
       },
     },
 
-    // API externa
     {
-      urlPattern: /^https:\/\/quicksosbackend-production\.up\.railway\.app\/api\/.*$/i,
-      handler: "NetworkFirst",
+      urlPattern: /^\/components\/Mapa$/i,
+      handler: "NetworkOnly",
       options: {
-        cacheName: "api-cache",
-        networkTimeoutSeconds: 8,
-        cacheableResponse: { statuses: [0, 200] },
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 60 * 60 * 24 * 7,
+        cacheName: "mapa-no-cache",
+        fallback: {
+          document: "/offline.html",
         },
       },
     },
 
-    // Imágenes
+    // ============================
+    // 3) IMÁGENES
+    // ============================
     {
       urlPattern: ({ request }) => request.destination === "image",
       handler: "CacheFirst",
@@ -68,7 +79,9 @@ const withPwaConfigured = withPWA({
       },
     },
 
-    // Scripts, estilos, fuentes
+    // ============================
+    // 4) STATIC: JS, CSS, FUENTES
+    // ============================
     {
       urlPattern: ({ request }) =>
         ["script", "style", "font"].includes(request.destination),
@@ -80,24 +93,14 @@ const withPwaConfigured = withPWA({
     },
   ],
 
-  // SERVICE WORKER CUSTOM
   customWorkerDir: "service-worker",
 });
-
-
-
 
 export default withPwaConfigured({
   reactStrictMode: true,
 
-  experimental: {
-    workerThreads: false,
-    cpus: 1,
-  },
-   experimental: {
-    turbo: false,
-  },
+  // DESACTIVAR TURBOPACK PARA next-pwa
+  turbopack: {},
 
-  // Requerido por next-pwa
   webpack: (config) => config,
 });
