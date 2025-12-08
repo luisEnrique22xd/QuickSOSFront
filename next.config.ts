@@ -1,4 +1,4 @@
-// @ts-nocheck  // necesario por next-pwa + TS
+// @ts-nocheck
 import withPWA from "next-pwa";
 import runtimeCaching from "next-pwa/cache.js";
 
@@ -11,7 +11,6 @@ const withPwaConfigured = withPWA({
   runtimeCaching: [
     ...runtimeCaching,
 
-    // --- Navegación / Páginas ---
     {
       urlPattern: ({ request, url }) =>
         request.mode === "navigate" && !url.pathname.startsWith("/api"),
@@ -27,7 +26,6 @@ const withPwaConfigured = withPWA({
       },
     },
 
-    // --- API Railway ---
     {
       urlPattern: /^https:\/\/quicksosbackend-production\.up\.railway\.app\/api\/.*$/i,
       handler: "NetworkFirst",
@@ -42,7 +40,6 @@ const withPwaConfigured = withPWA({
       },
     },
 
-    // --- Imágenes ---
     {
       urlPattern: ({ request }) => request.destination === "image",
       handler: "CacheFirst",
@@ -56,7 +53,6 @@ const withPwaConfigured = withPWA({
       },
     },
 
-    // --- Scripts, CSS, Fuentes ---
     {
       urlPattern: ({ request }) =>
         ["script", "style", "font"].includes(request.destination),
@@ -69,20 +65,18 @@ const withPwaConfigured = withPWA({
   ],
 
   customWorkerDir: "service-worker",
-  // customWorkerDir: "sw.js",
 });
 
+// 👇 ESTA ES LA CLAVE:
+// Desactivar Turbopack por completo
 export default withPwaConfigured({
   reactStrictMode: true,
 
-  experimental: {
-  turbo: {
-    // Desactivar turbopack completamente
-    resolveAlias: {},
-    loaders: {},
+  // Next.js 16 permite esto:
+  turbopack: {},
+
+  // Forzar Webpack en Vercel
+  webpack(config) {
+    return config;
   },
-  // También evita que use Worker Threads
-  workerThreads: false,
-  cpus: 1,
-},
 });
